@@ -8,6 +8,16 @@
 
 #include "data.h"
 QueueHandle_t xQueueData;
+const int WINDOW_SIZE = 10;
+
+// Função para calcular a média móvel
+float moving_average(int* data, int window_size) {
+    float sum = 0;
+    for (int i = 0; i < window_size; i++) {
+        sum += data[i];
+    }
+    return sum / window_size;
+}
 
 // não mexer! Alimenta a fila com os dados do sinal
 void data_task(void *p) {
@@ -24,12 +34,25 @@ void data_task(void *p) {
 }
 
 void process_task(void *p) {
-    int data = 0;
+    int data_index = 0;
+    int data[WINDOW_SIZE];
 
     while (true) {
-        if (xQueueReceive(xQueueData, &data, 100)) {
+        int new_data =0;
+        if (xQueueReceive(xQueueData, &new_data, 100)) {
             // implementar filtro aqui!
 
+            data[data_index] = new_data;
+
+
+            // Verificar se temos dados suficientes para calcular a média móvel
+            if (data_index >= WINDOW_SIZE - 1) {
+                // Calcular a média móvel dos últimos WINDOW_SIZE dados
+                float average = moving_average(data, WINDOW_SIZE);
+                // Agora você pode usar a variável 'average' como quiser
+                printf("Média Móvel: %.2f\n", average);
+            }
+        }
 
 
 
@@ -37,7 +60,7 @@ void process_task(void *p) {
             vTaskDelay(pdMS_TO_TICKS(50));
         }
     }
-}
+
 
 int main() {
     stdio_init_all();
