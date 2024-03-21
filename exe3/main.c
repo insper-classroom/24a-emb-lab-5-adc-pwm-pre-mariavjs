@@ -35,32 +35,26 @@ void data_task(void *p) {
 
 void process_task(void *p) {
     int data_index = 0;
-    int data[WINDOW_SIZE];
+    int data[WINDOW_SIZE]; // Inicializar com zeros pode ajudar a evitar lixo na memória
 
     while (true) {
-        int new_data =0;
-        if (xQueueReceive(xQueueData, &new_data, 100)) {
-            // implementar filtro aqui!
-
-            data[data_index] = new_data;
-
+        int new_data = 0;
+        if (xQueueReceive(xQueueData, &new_data, portMAX_DELAY)) { // Considere esperar indefinidamente ou ajustar conforme necessário
+            data[data_index % WINDOW_SIZE] = new_data;
+            data_index++;
 
             // Verificar se temos dados suficientes para calcular a média móvel
-            if (data_index >= WINDOW_SIZE - 1) {
+            if (data_index >= WINDOW_SIZE) {
                 // Calcular a média móvel dos últimos WINDOW_SIZE dados
                 float average = moving_average(data, WINDOW_SIZE);
                 // Agora você pode usar a variável 'average' como quiser
                 printf("Média Móvel: %.2f\n", average);
             }
         }
-
-
-
-            // deixar esse delay!
-            vTaskDelay(pdMS_TO_TICKS(50));
-        }
+        // Deixar esse delay
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
-
+}
 
 int main() {
     stdio_init_all();

@@ -46,8 +46,6 @@ void adc_0_task(void *p) {
 
         // CÓDIGO AQUI
 
-
-
         vTaskDelay(pdMS_TO_TICKS(200));
     }
 }
@@ -58,7 +56,7 @@ int main() {
     adc_init();
 
     xTaskCreate(adc_1_task, "LED_Task 1", 4095, NULL, 1, NULL);
-    xTaskCreate(adc_0_task, "LED_Task 1", 4095, NULL, 1, NULL);
+    xTaskCreate(adc_0_task, "LED_Task 2", 4095, NULL, 1, NULL);
     vTaskStartScheduler();
 
     while (true) {
