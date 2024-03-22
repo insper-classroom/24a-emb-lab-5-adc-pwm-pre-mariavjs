@@ -30,8 +30,8 @@ void moving_average(int new_data) {
     index = (index + 1) % WINDOW_SIZE;
 
     // Calcula e imprime a média móvel
-    int average = sum / count;
-    printf("%d\n", average);
+    float average = (float) sum / count;
+    printf("%2f\n", average);
 }
 
 // não mexer! Alimenta a fila com os dados do sinal
@@ -55,7 +55,7 @@ void process_task(void *p) {
     while (true) {
         int new_data = 0;
         if (xQueueReceive(xQueueData, &new_data, portMAX_DELAY)) { // Considere esperar indefinidamente ou ajustar conforme necessário
-             moving_average(data);
+             moving_average(new_data);
 
             // Verificar se temos dados suficientes para calcular a média móvel
             // if (data_index == WINDOW_SIZE) {
