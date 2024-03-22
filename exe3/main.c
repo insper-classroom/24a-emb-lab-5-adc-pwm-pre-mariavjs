@@ -39,11 +39,11 @@ void process_task(void *p) {
             data_buffer[3]=data_buffer[4];
             data_buffer[4]=data;
             
-            if (contador<=5){
-                media=((data_buffer[4]+data_buffer[3]+data_buffer[2]+data_buffer[1]+data_buffer[0])/5);
-                printf("%d\n",media);
-            }
-            contador++;
+        
+            media=((data_buffer[4]+data_buffer[3]+data_buffer[2]+data_buffer[1]+data_buffer[0])/5);
+            printf("%d\n",media);
+        
+        
             // deixar esse delay!
            
             vTaskDelay(pdMS_TO_TICKS(50));
