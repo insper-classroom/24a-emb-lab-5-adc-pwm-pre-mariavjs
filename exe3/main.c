@@ -7,16 +7,31 @@
 #include <stdio.h>
 
 #include "data.h"
-QueueHandle_t xQueueData;
-const int WINDOW_SIZE = 10;
 
-// Função para calcular a média móvel
-float moving_average(int* data, int window_size) {
-    float sum = 0;
-    for (int i = 0; i < window_size; i++) {
-        sum += data[i];
+#define WINDOW_SIZE 5
+
+QueueHandle_t xQueueData;
+int buffer[WINDOW_SIZE] = {0}; // Initialize the fixed-sized array with zeros
+int index = 0;
+int sum = 0;
+int count = 0;
+
+void moving_average(int new_data) {
+    // Se o buffer estiver cheio, subtrai o valor mais antigo do total
+    if (count == WINDOW_SIZE) {
+        sum -= buffer[index];
+    } else {
+        count++;
     }
-    return sum / window_size;
+
+    // Adiciona o novo valor ao total e ao buffer
+    sum += new_data;
+    buffer[index] = new_data;
+    index = (index + 1) % WINDOW_SIZE;
+
+    // Calcula e imprime a média móvel
+    int average = sum / count;
+    printf("%d\n", average);
 }
 
 // não mexer! Alimenta a fila com os dados do sinal
@@ -35,21 +50,20 @@ void data_task(void *p) {
 
 void process_task(void *p) {
     int data_index = 0;
-    int data[WINDOW_SIZE]; // Inicializar com zeros pode ajudar a evitar lixo na memória
+    int data;
 
     while (true) {
         int new_data = 0;
         if (xQueueReceive(xQueueData, &new_data, portMAX_DELAY)) { // Considere esperar indefinidamente ou ajustar conforme necessário
-            data[data_index % WINDOW_SIZE] = new_data;
-            data_index++;
+             moving_average(data);
 
             // Verificar se temos dados suficientes para calcular a média móvel
-            if (data_index >= WINDOW_SIZE) {
-                // Calcular a média móvel dos últimos WINDOW_SIZE dados
-                float average = moving_average(data, WINDOW_SIZE);
-                // Agora você pode usar a variável 'average' como quiser
-                printf("Média Móvel: %.2f\n", average);
-            }
+            // if (data_index == WINDOW_SIZE) {
+            //     // Calcular a média móvel dos últimos WINDOW_SIZE dados
+            //     float average = moving_average(data, WINDOW_SIZE);
+            //     // Agora você pode usar a variável 'average' como quiser
+            //     printf("Média Móvel: %.2f\n", average);
+            // }
         }
         // Deixar esse delay
         vTaskDelay(pdMS_TO_TICKS(50));
@@ -67,5 +81,4 @@ int main() {
     vTaskStartScheduler();
 
     while (true)
-        ;
-}
+        ;}
